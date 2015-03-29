@@ -91,13 +91,9 @@
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
-    var result = [];
-  _.each(collection, function(item) {
-    if (test(item) == false) {
-      result.push(item);
-    }
-  });
-  return result;
+    return _.filter(collection, function(item) {
+      return !(test(item));
+    });
   };
 
   // Produce a duplicate-free version of the array.
@@ -182,7 +178,7 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     if (collection.length == 0) {return true;}
-    if (iterator === undefined) {iterator = function(a) {return a;}};
+    if (iterator === undefined) iterator = _.identity;
     if (_.contains(collection, undefined)) {return false;};
     return _.reduce(collection, function(pass, item) {
       if (pass && iterator(item)) {
@@ -199,15 +195,15 @@
   // provided, provide a default one
   _.some = function(collection, iterator) {
     if (collection.length == 0) {return false;}
-    if (iterator === undefined) {iterator = function(a) {return a;}};
-    if (_.contains(collection, undefined)) {return false;};
-      return _.reduce(collection, function(pass, item) {
-      if (pass) {
+    if (iterator === undefined) iterator = _.identity;
+    return _.reduce(collection, function(pass, item) {
+      if (pass || iterator(item)) {
         return true;
       }
-      return iterator(item);
+      return false;
     }, false);
-  };
+    };
+
    
 
 
@@ -228,15 +224,25 @@
   //     key3: "something else new"
   //   }, {
   //     bla: "even more stuff"
-  //   }); // obj1 now contains key1, key2, key3 and bla
+  //   }); // obj1 now contains key1, key2, key3 and bla 
   _.extend = function(obj) {
-
-
+    _.each(arguments, function(item) {
+      for (var key in item)
+      obj[key] = item[key];
+    });
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    _.each(arguments, function(item) {
+      for (var key in item)
+      if (obj[key] === undefined) {
+        obj[key] = item[key];
+      }
+    });
+    return obj;
   };
 
 
@@ -280,18 +286,15 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-    var hasAnswer = false;
-    var result;
-    return function() {
-      if (!hasAnswer) {
-        result = func.apply(this, arguments);
-        hasAnswer = true;
-      }
-      return result;
+    var result = {};
+    return function () {
+      var args = Array.prototype.slice.call(arguments);
+      if (result[args] === undefined) {
+      result[args] = func.apply(this, arguments);
     }
-  };
-
-
+    return result[args];
+  }
+};
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
   //
@@ -299,6 +302,7 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    setTimeout.apply(this, arguments);
   };
 
 
