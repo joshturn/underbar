@@ -288,11 +288,11 @@
   _.memoize = function(func) {
     var result = {};
     return function () {
-      var args = Array.prototype.slice.call(arguments);
-      if (result[args] === undefined) {
-      result[args] = func.apply(this, arguments);
+      var arg = Array.prototype.slice.call(arguments);
+      if (result[arg] === undefined) {
+      result[arg] = func.apply(this, arguments);
     }
-    return result[args];
+    return result[arg];
   }
 };
   // Delays a function for the given number of milliseconds, and then calls
